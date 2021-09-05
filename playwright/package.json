@@ -1,0 +1,4 @@
+{
+  "main": "../dist/playwright.js",
+  "browser": "../dist/playwright.js"
+}

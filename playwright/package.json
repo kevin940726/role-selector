@@ -1,4 +1,3 @@
 {
-  "main": "../dist/playwright.js",
-  "browser": "../dist/playwright.js"
+  "main": "../dist/role-selector-eval.js"
 }

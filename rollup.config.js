@@ -1,9 +1,9 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
-function iifeOutputPlugin() {
+function iifeEvalOutputPlugin() {
   return {
-    name: 'iife-output-plugin',
+    name: 'iife-eval-output-plugin',
     generateBundle(options, bundle) {
       for (const file of Object.values(bundle)) {
         file.code = file.code.trimEnd();
@@ -18,12 +18,12 @@ function iifeOutputPlugin() {
 export default {
   input: 'dist/role-selector.js',
   output: {
-    file: 'dist/playwright.js',
+    file: 'dist/role-selector-eval.js',
     format: 'iife',
     globals: {
       crypto: 'crypto',
     },
-    plugins: [iifeOutputPlugin()],
+    plugins: [iifeEvalOutputPlugin()],
   },
   plugins: [resolve(), commonjs()],
 };

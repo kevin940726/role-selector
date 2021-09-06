@@ -3,7 +3,7 @@ module.exports = {
   selectors: [
     {
       name: 'role',
-      script: { path: require.resolve('./playwright') },
+      script: { path: require.resolve('../playwright') },
     },
   ],
 };

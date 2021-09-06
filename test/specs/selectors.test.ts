@@ -1,6 +1,6 @@
 /// <reference types="jest-playwright-preset" />
 /// <reference types="expect-playwright" />
-import { html } from './test-utils';
+import { html } from '../test-utils';
 
 it('query elements', async () => {
   await html`

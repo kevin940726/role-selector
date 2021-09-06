@@ -4,12 +4,12 @@ Accessible role selector for Playwright, Puppeteer, Cypress, jsdom, and browsers
 
 ## Quick Start
 
-Only Playwright is supported at the time.
+Only Playwright and Puppeteer are supported at the time.
 
 ```js
-import { selectors } from 'playwright';
+import { setupPlaywright } from 'role-selector';
 
-selectors.register('role', { path: require.resolve('role-selector/playwright') });
+setupPlaywright();
 
 // Given DOM of:
 //   <label for="username">User Name</label>

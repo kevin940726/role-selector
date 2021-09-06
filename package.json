@@ -1,6 +1,6 @@
 {
   "name": "role-selector",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Accessible role selector for Playwright, Puppeteer, jsdom, Cypress, and browsers",
   "main": "dist/index.js",
   "repository": "https://github.com/kevin940726/role-selector.git",

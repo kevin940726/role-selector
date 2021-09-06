@@ -1,6 +1,6 @@
 {
   "name": "role-selector",
-  "version": "0.6.0",
+  "version": "0.0.0",
   "description": "Accessible role selector for Playwright, Puppeteer, jsdom, Cypress, and browsers",
   "main": "dist/index.js",
   "repository": "https://github.com/kevin940726/role-selector.git",
@@ -9,12 +9,14 @@
   "scripts": {
     "postinstall": "npx playwright install-deps",
     "build": "tsc && rollup -c",
-    "test": "npm run test:playwright && npm run test:puppeteer",
-    "test:playwright": "jest -c test/jest.config.js",
-    "test:puppeteer": "jest -c test/integration/puppeteer/jest.puppeteer.config.js",
+    "test": "npm run test:specs && npm run test:jest-playwright && npm run test:jest-puppeteer",
+    "test:specs": "playwright test -c test/playwright.config.ts",
+    "test:jest-playwright": "jest -c test/integration/jest-playwright/jest.playwright.config.js",
+    "test:jest-puppeteer": "jest -c test/integration/jest-puppeteer/jest.puppeteer.config.js",
     "prepare": "npm run build && npm run test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.14.1",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/jest": "^26.0.24",
@@ -27,14 +29,13 @@
     "prettier": "2.2.1",
     "puppeteer": "^10.2.0",
     "rollup": "^2.56.3",
-    "strip-ansi": "^7.0.0",
     "ts-jest": "^26.4.4",
     "typescript": "^4.4.2"
   },
-  "prettier": {
-    "singleQuote": true
-  },
   "dependencies": {
     "axe-core": "^4.3.3"
+  },
+  "prettier": {
+    "singleQuote": true
   }
 }

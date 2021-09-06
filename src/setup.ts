@@ -1,20 +1,26 @@
 import fs from 'fs';
-import { selectors } from 'playwright';
+import playwright from 'playwright';
 import puppeteer from 'puppeteer';
 
-export function setupPlaywright(selectorName: string = 'role') {
-  selectors.register(selectorName, {
-    path: require.resolve('../playwright'),
+export function setupPlaywright(
+  this: typeof playwright,
+  selectorName: string = 'role'
+) {
+  (this || playwright).selectors.register(selectorName, {
+    path: require.resolve('../dist/role-selector-eval.js'),
   });
 }
 
-export function setupPuppeteer(selectorName: string = 'role') {
+export function setupPuppeteer(
+  this: typeof puppeteer,
+  selectorName: string = 'role'
+) {
   const script = fs.readFileSync(
-    require.resolve('../dist/role-selector-eval'),
+    require.resolve('../dist/role-selector-eval.js'),
     'utf-8'
   );
 
-  puppeteer.registerCustomQueryHandler(selectorName, {
+  (this || puppeteer).registerCustomQueryHandler(selectorName, {
     queryOne: new Function(
       'element',
       'selector',

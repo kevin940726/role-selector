@@ -1,8 +1,7 @@
-/// <reference types="jest-playwright-preset" />
-/// <reference types="expect-playwright" />
-import { html } from '../test-utils';
+import { expect } from '@playwright/test';
+import { test } from '../test-utils';
 
-it('query elements', async () => {
+test('query elements', async ({ page, html }) => {
   await html`
     <div>
       <button aria-pressed="true">Button 1</button>
@@ -27,32 +26,48 @@ it('query elements', async () => {
     </div>
   `;
 
-  await expect(page).toHaveSelector('role=button');
-  await expect(page).toHaveSelectorCount('role=button', 3);
+  await expect(page.locator('role=button').first()).toHaveText('Button 1');
+  await expect(page.locator('role=button')).toHaveCount(3);
 
-  await expect(page).toHaveSelector('role=button[name="Button 1"]');
-  await expect(page).toHaveSelectorCount('role=button[name=/Button/]', 3);
-  await expect(page).toHaveSelectorCount('role=button[name=/button/i]', 3);
+  await expect(page.locator('role=button[name="Button 1"]')).toHaveText(
+    'Button 1'
+  );
+  await expect(page.locator('role=button[name=/Button/]')).toHaveCount(3);
+  await expect(page.locator('role=button[name=/button/i]')).toHaveCount(3);
 
-  await expect(page).toHaveSelector('role=textbox[name="Input 1"]');
-  await expect(page).toHaveSelector('role=textbox[name="Input 2"]');
-  await expect(page).toHaveSelector('role=textbox[name="Input 3"]');
+  await expect(page.locator('role=textbox[name="Input 1"]')).toHaveId(
+    'input-1'
+  );
+  await expect(page.locator('role=textbox[name="Input 2"]')).toHaveValue(
+    'value'
+  );
+  await expect(page.locator('role=textbox[name="Input 3"]')).toHaveAttribute(
+    'aria-label',
+    'Input 3'
+  );
 
-  await expect(page).toHaveSelector('role=textbox[placeholder="placeholder"]');
+  await expect(
+    page.locator('role=textbox[placeholder="placeholder"]')
+  ).toHaveAttribute('placeholder', 'placeholder');
 
-  await expect(page).toHaveSelector('role=textbox[value="value"]');
-  const selectHandlePromise = page.$('role=combobox[value="Option 2"]');
-  await expect(selectHandlePromise).resolves.toBeTruthy();
-  const select = await selectHandlePromise;
-  await select!.selectOption('option-1');
-  await expect(page).toHaveSelector('role=combobox[value="Option 1"]');
+  await expect(page.locator('role=textbox[value="value"]')).toHaveValue(
+    'value'
+  );
+  const selectHandleLocator = page.locator('role=combobox[value="Option 2"]');
+  await expect(selectHandleLocator).toHaveValue('option-2');
+  await selectHandleLocator.selectOption('option-1');
+  await expect(page.locator('role=combobox[value="Option 1"]')).toHaveValue(
+    'option-1'
+  );
 
-  await expect(page).toHaveSelector('role=heading[name="Heading 1"]');
-  await expect(page).toHaveSelector('role=heading[level=2]');
+  await expect(page.locator('role=heading[name="Heading 1"]')).toHaveText(
+    'Heading 1'
+  );
+  await expect(page.locator('role=heading[level=2]')).toHaveText('Heading 2');
 
-  await expect(page).toHaveSelectorCount('role=button[disabled]', 1);
+  await expect(page.locator('role=button[pressed]')).toHaveText('Button 1');
 
-  await expect(page).toHaveSelectorCount('role=button[pressed]', 1);
+  await expect(page.locator('role=button[disabled]')).toHaveText('Button 2');
 
-  await expect(page).toHaveSelectorCount('role=button[expanded]', 1);
+  await expect(page.locator('role=button[expanded]')).toHaveText('Button 3');
 });

@@ -15,15 +15,41 @@ function iifeEvalOutputPlugin() {
   };
 }
 
-export default {
-  input: 'dist/role-selector.js',
-  output: {
-    file: 'dist/role-selector-eval.js',
-    format: 'iife',
-    globals: {
-      crypto: 'crypto',
+export default [
+  {
+    input: 'dist/role-selector.js',
+    output: {
+      file: 'dist/role-selector.eval.js',
+      format: 'iife',
+      globals: {
+        crypto: 'crypto',
+      },
+      plugins: [iifeEvalOutputPlugin()],
     },
-    plugins: [iifeEvalOutputPlugin()],
+    plugins: [resolve(), commonjs()],
   },
-  plugins: [resolve(), commonjs()],
-};
+  {
+    input: 'dist/suggest-selector.js',
+    output: {
+      file: 'dist/suggest-selector.eval.js',
+      format: 'iife',
+      globals: {
+        crypto: 'crypto',
+      },
+      plugins: [iifeEvalOutputPlugin()],
+    },
+    plugins: [resolve(), commonjs()],
+  },
+  {
+    input: 'dist/browser.js',
+    output: {
+      file: 'dist/browser.js',
+      name: 'roleSelector',
+      format: 'umd',
+      globals: {
+        crypto: 'crypto',
+      },
+    },
+    plugins: [resolve(), commonjs()],
+  },
+];

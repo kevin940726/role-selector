@@ -3,33 +3,30 @@ import playwright from 'playwright';
 import puppeteer from 'puppeteer';
 
 export function setupPlaywright(
-  this: typeof playwright,
+  this: typeof playwright | void,
   selectorName: string = 'role'
 ) {
   (this || playwright).selectors.register(selectorName, {
-    path: require.resolve('../dist/role-selector-eval.js'),
+    path: require.resolve('../eval'),
   });
 }
 
 export function setupPuppeteer(
-  this: typeof puppeteer,
+  this: typeof puppeteer | void,
   selectorName: string = 'role'
 ) {
-  const script = fs.readFileSync(
-    require.resolve('../dist/role-selector-eval.js'),
-    'utf-8'
-  );
+  const script = fs.readFileSync(require.resolve('../eval'), 'utf-8');
 
   (this || puppeteer).registerCustomQueryHandler(selectorName, {
     queryOne: new Function(
       'element',
       'selector',
-      `return window.eval(${script}).query(element, selector);`
+      `return (${script}).query(element, selector);`
     ) as any,
     queryAll: new Function(
       'element',
       'selector',
-      `return window.eval(${script}).queryAll(element, selector);`
+      `return (${script}).queryAll(element, selector);`
     ) as any,
   });
 }

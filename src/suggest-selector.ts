@@ -1,5 +1,6 @@
 import * as attributeGetters from './attributes';
 import roleSelector from './role-selector';
+import { flattenVNodes } from './utils';
 
 const ATTRIBUTES_ORDER: (keyof typeof attributeGetters)[] = [
   'name',
@@ -17,7 +18,7 @@ function suggestSelector(
   element: HTMLElement | null,
   options: { strict?: boolean } = {}
 ) {
-  const { strict = false } = options;
+  const { strict = true } = options;
 
   if (!element) {
     throw new Error('Element not found');
@@ -28,15 +29,18 @@ function suggestSelector(
     if (element.dataset.testid) {
       return {
         type: 'css',
-        selector: `[data-testid="${element.dataset.testid}"]`,
+        selector: `[data-testid=${JSON.stringify(element.dataset.testid)}]`,
       };
     } else if (element.dataset.testId) {
       return {
         type: 'css',
-        selector: `[data-test-id="${element.dataset.testId}"]`,
+        selector: `[data-test-id=${JSON.stringify(element.dataset.testId)}]`,
       };
     } else if (element.dataset.test) {
-      return { type: 'css', selector: `[data-test="${element.dataset.test}"]` };
+      return {
+        type: 'css',
+        selector: `[data-test=${JSON.stringify(element.dataset.test)}]`,
+      };
     }
   }
 
@@ -52,7 +56,9 @@ function suggestSelector(
     throw new Error('Axe is not injected');
   }
 
-  const vNode = window.axe.setup(element);
+  const rootVNode = window.axe.setup(element.ownerDocument);
+  const vNodes = flattenVNodes(rootVNode);
+  const vNode = vNodes.find((node) => node.actualNode === element)!;
 
   const { role: getRole, ...ariaAttributeGetters } = attributeGetters;
 

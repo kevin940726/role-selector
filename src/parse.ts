@@ -28,9 +28,6 @@ interface ParsedSelector {
   attributes: ParsedAttribute[];
 }
 
-// Skip parsing the selector, just inject axe into the frame.
-export const NOOP = `__NOOP__`;
-
 function parseSelector(selector: string): ParsedSelector {
   let wp = 0;
   let EOL = selector.length === 0;

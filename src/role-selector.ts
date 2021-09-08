@@ -1,35 +1,14 @@
-import parse, { NOOP } from './parse';
+import parse from './parse';
 import * as attributeGetters from './attributes';
 import { VNode } from './types';
+import { flattenVNodes, is, findVNode } from './utils';
 
 // Conditionally evaluate axe script
 if (!window.axe) {
   require('axe-core');
 }
 
-function is(
-  value: string | number | boolean,
-  attrValue: string | number | boolean | RegExp
-): boolean {
-  if (attrValue instanceof RegExp) {
-    const valueAsString = value.toString();
-    return !!valueAsString.match(attrValue);
-  }
-
-  return Object.is(value, attrValue);
-}
-
-function flattenVNodes(vNode: VNode): VNode[] {
-  return [vNode, ...vNode.children.flatMap((child) => flattenVNodes(child))];
-}
-
-function queryAll(root: Element, selector: string) {
-  // This noop token is used for library's internals to inject axe
-  // into the frame without having to select anything.
-  if (selector === NOOP) {
-    return [];
-  }
-
+function queryAll(root: Element | Document, selector: string) {
   const { role, attributes } = parse(selector);
 
   function filter(vNode: VNode) {
@@ -58,8 +37,13 @@ function queryAll(root: Element, selector: string) {
     ].every(Boolean);
   }
 
-  const rootVNode = window.axe.setup(root);
-  const vNodes = flattenVNodes(rootVNode);
+  const rootElement = root.ownerDocument
+    ? root.ownerDocument.documentElement
+    : root;
+  // Always parse the whole DOM to form the accurate AOM
+  const rootVNode = window.axe.setup(rootElement);
+  const targetVNode = findVNode(rootVNode, root)!;
+  const vNodes = flattenVNodes(targetVNode);
   const vNodesWithActualNode = vNodes.filter((vNode) => vNode.actualNode);
   const matchedVNodes = vNodesWithActualNode.filter(filter);
   const nodes = matchedVNodes.map((vNode) => vNode.actualNode);

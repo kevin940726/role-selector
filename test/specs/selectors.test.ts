@@ -71,3 +71,21 @@ test('query elements', async ({ page, html }) => {
 
   await expect(page.locator('role=button[expanded]')).toHaveText('Button 3');
 });
+
+test('query partial elements', async ({ page, html }) => {
+  await html`
+    <div>
+      <button data-id="button-1">Button</button>
+      <div id="target">
+        <button data-id="button-2">Button</button>
+      </div>
+    </div>
+  `;
+
+  const target = await page.$('#target')!;
+  const button = await target.$('role=button[name="Button"]')!;
+
+  await expect(button.evaluate((node) => node.dataset.id)).resolves.toBe(
+    'button-2'
+  );
+});

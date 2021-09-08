@@ -24,7 +24,7 @@ function suggestSelector(
     throw new Error('Element not found');
   }
 
-  // Priority 1: Select by test ids.
+  // Priority 1: Select by test ids
   {
     if (element.dataset.testid) {
       return {
@@ -44,14 +44,14 @@ function suggestSelector(
     }
   }
 
-  // Priority 2: Select by ids.
+  // Priority 2: Select by ids
   {
     if (element.id) {
       return { type: 'css', selector: `#${element.id}` };
     }
   }
 
-  // Make sure axe is injected.
+  // Make sure axe is injected
   if (!window.axe) {
     throw new Error('Axe is not injected');
   }
@@ -70,7 +70,7 @@ function suggestSelector(
     );
   }
 
-  // Priority 3: Select by roles and aria attributes.
+  // Priority 3: Select by roles and aria attributes
   const attributeEntries = Object.entries(ariaAttributeGetters).map(
     ([attributeKey, getAttribute]) => {
       try {
@@ -116,7 +116,12 @@ function suggestSelector(
     }
   }
 
-  throw new Error(`Unable to find accessible selector for this element.
+  // Priority 4: Select by roles only
+  if (checkSelector(selector)) {
+    return { type: 'role', selector };
+  }
+
+  throw new Error(`Unable to find accessible selector for this element. Consider using text selector or CSS selector instead.
 Parsed attributes:
 ${JSON.stringify({ role, ...attributes }, null, 2)}`);
 }

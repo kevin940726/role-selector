@@ -44,13 +44,6 @@ function suggestSelector(
     }
   }
 
-  // Priority 2: Select by ids
-  {
-    if (element.id) {
-      return { type: 'css', selector: `#${element.id}` };
-    }
-  }
-
   // Make sure axe is injected
   if (!window.axe) {
     throw new Error('Axe is not injected');
@@ -70,7 +63,7 @@ function suggestSelector(
     );
   }
 
-  // Priority 3: Select by roles and aria attributes
+  // Priority 2: Select by roles and aria attributes
   const attributeEntries = Object.entries(ariaAttributeGetters).map(
     ([attributeKey, getAttribute]) => {
       try {
@@ -116,9 +109,18 @@ function suggestSelector(
     }
   }
 
-  // Priority 4: Select by roles only
-  if (checkSelector(selector)) {
-    return { type: 'role', selector };
+  // Priority 3: Select by roles only
+  {
+    if (checkSelector(selector)) {
+      return { type: 'role', selector };
+    }
+  }
+
+  // Priority 4: Select by ids
+  {
+    if (element.id) {
+      return { type: 'css', selector: `#${element.id}` };
+    }
   }
 
   throw new Error(`Unable to find accessible selector for this element. Consider using text selector or CSS selector instead.

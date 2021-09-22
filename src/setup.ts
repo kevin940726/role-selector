@@ -1,23 +1,26 @@
 import fs from 'fs';
-import playwright from 'playwright';
-import puppeteer from 'puppeteer';
+import type { Selectors } from 'playwright';
+import type { Puppeteer } from 'puppeteer';
 
 export function setupPlaywright(
-  this: typeof playwright | void,
+  this: { selectors: Selectors } | void,
   selectorName: string = 'role'
 ) {
-  (this || playwright).selectors.register(selectorName, {
+  const playwright = this || require('playwright');
+
+  playwright.selectors.register(selectorName, {
     path: require.resolve('../eval'),
   });
 }
 
 export function setupPuppeteer(
-  this: typeof puppeteer | void,
+  this: Puppeteer | void,
   selectorName: string = 'role'
 ) {
   const script = fs.readFileSync(require.resolve('../eval'), 'utf-8');
+  const puppeteer = this || require('puppeteer');
 
-  (this || puppeteer).registerCustomQueryHandler(selectorName, {
+  puppeteer.registerCustomQueryHandler(selectorName, {
     queryOne: new Function(
       'element',
       'selector',

@@ -1,2 +1,5 @@
-export { setupPlaywright, setupPuppeteer } from './setup';
-export { default as suggestSelector } from './suggest-selector.backend';
+import queries from './role-selector';
+
+export const query = queries.query;
+export const queryAll = queries.queryAll;
+export { default as suggestSelector } from './suggest-selector';

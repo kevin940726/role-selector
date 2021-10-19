@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { test } from '../test-utils';
-import { suggestSelector } from '../../';
+import { suggestSelector } from '../../playwright';
 
 test.describe('suggestSelector', () => {
   test('suggest selectors', async ({ page, html }) => {
@@ -101,21 +101,30 @@ test.describe('suggestSelector', () => {
     });
   });
 
-  test('suggest id selector second', async ({ page, html }) => {
-    await html`<button id="button-1">Button 1</button>`;
-
-    await expect(suggestSelector(page.locator('button'))).resolves.toEqual({
-      type: 'css',
-      selector: '#button-1',
-    });
-  });
-
-  test('suggest role selector third', async ({ page, html }) => {
+  test('suggest role selector second', async ({ page, html }) => {
     await html`<button>Button 1</button>`;
 
     await expect(suggestSelector(page.locator('button'))).resolves.toEqual({
       type: 'role',
       selector: 'button[name="Button 1"]',
+    });
+  });
+
+  test('suggest role only selector third', async ({ page, html }) => {
+    await html`<input />`;
+
+    await expect(suggestSelector(page.locator('input'))).resolves.toEqual({
+      type: 'role',
+      selector: 'textbox',
+    });
+  });
+
+  test('suggest id selector forth', async ({ page, html }) => {
+    await html`<div id="element"></button>`;
+
+    await expect(suggestSelector(page.locator('#element'))).resolves.toEqual({
+      type: 'css',
+      selector: '#element',
     });
   });
 

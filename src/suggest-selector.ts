@@ -57,63 +57,63 @@ function suggestSelector(
 
   const role = getRole(vNode);
 
-  if (!role) {
-    throw new Error(
-      `Unable to compute aria role for this element. Consider using other selectors like text selector or CSS selector instead.`
+  if (role) {
+    // Priority 2: Select by roles and aria attributes
+    const attributeEntries = Object.entries(ariaAttributeGetters).map(
+      ([attributeKey, getAttribute]) => {
+        try {
+          return [attributeKey, getAttribute(vNode, role)];
+        } catch (err) {
+          return [attributeKey, null];
+        }
+      }
     );
-  }
+    const attributes: {
+      [Key in keyof typeof ariaAttributeGetters]: ReturnType<
+        typeof ariaAttributeGetters[Key]
+      >;
+    } = Object.fromEntries(attributeEntries.filter(([_key, value]) => value));
+    window.axe.teardown();
 
-  // Priority 2: Select by roles and aria attributes
-  const attributeEntries = Object.entries(ariaAttributeGetters).map(
-    ([attributeKey, getAttribute]) => {
-      try {
-        return [attributeKey, getAttribute(vNode, role)];
-      } catch (err) {
-        return [attributeKey, null];
+    const checkSelector = (selector: string) => {
+      const selectedElements = roleSelector.queryAll(
+        element.ownerDocument.documentElement,
+        selector
+      );
+      if (!selectedElements.length) return false;
+      else if (strict && selectedElements.length > 1) return false;
+      return selectedElements[0] === element;
+    };
+
+    let selector = role;
+    for (const attributeKey of ATTRIBUTES_ORDER) {
+      const attribute = attributes[attributeKey as keyof typeof attributes];
+      const serializedAttribute =
+        typeof attribute === 'string' ? JSON.stringify(attribute) : attribute;
+
+      if (attribute) {
+        const selectorCandidate =
+          selector +
+          (serializedAttribute === true
+            ? `[${attributeKey}]`
+            : `[${attributeKey}=${serializedAttribute}]`);
+        if (checkSelector(selectorCandidate)) {
+          return { type: 'role', selector: selectorCandidate };
+        }
+        selector = selectorCandidate;
       }
     }
-  );
-  const attributes: {
-    [Key in keyof typeof ariaAttributeGetters]: ReturnType<
-      typeof ariaAttributeGetters[Key]
-    >;
-  } = Object.fromEntries(attributeEntries.filter(([_key, value]) => value));
-  window.axe.teardown();
 
-  const checkSelector = (selector: string) => {
-    const selectedElements = roleSelector.queryAll(
-      element.ownerDocument.documentElement,
-      selector
-    );
-    if (!selectedElements.length) return false;
-    else if (strict && selectedElements.length > 1) return false;
-    return selectedElements[0] === element;
-  };
-
-  let selector = role;
-  for (const attributeKey of ATTRIBUTES_ORDER) {
-    const attribute = attributes[attributeKey as keyof typeof attributes];
-    const serializedAttribute =
-      typeof attribute === 'string' ? JSON.stringify(attribute) : attribute;
-
-    if (attribute) {
-      const selectorCandidate =
-        selector +
-        (serializedAttribute === true
-          ? `[${attributeKey}]`
-          : `[${attributeKey}=${serializedAttribute}]`);
-      if (checkSelector(selectorCandidate)) {
-        return { type: 'role', selector: selectorCandidate };
+    // Priority 3: Select by roles only
+    {
+      if (checkSelector(selector)) {
+        return { type: 'role', selector };
       }
-      selector = selectorCandidate;
     }
-  }
 
-  // Priority 3: Select by roles only
-  {
-    if (checkSelector(selector)) {
-      return { type: 'role', selector };
-    }
+    throw new Error(`Unable to find accessible selector for this element. Consider using text selector or CSS selector instead.
+Parsed attributes:
+${JSON.stringify({ role, ...attributes }, null, 2)}`);
   }
 
   // Priority 4: Select by ids
@@ -123,9 +123,7 @@ function suggestSelector(
     }
   }
 
-  throw new Error(`Unable to find accessible selector for this element. Consider using text selector or CSS selector instead.
-Parsed attributes:
-${JSON.stringify({ role, ...attributes }, null, 2)}`);
+  throw new Error(`Unable to find suggested selector for this element.`);
 }
 
 export default suggestSelector;

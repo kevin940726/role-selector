@@ -1,22 +1,7 @@
 import fs from 'fs';
-import type { Selectors } from 'playwright';
 import type { Puppeteer } from 'puppeteer';
 
-export function setupPlaywright(
-  this: { selectors: Selectors } | void,
-  selectorName: string = 'role'
-) {
-  const playwright = this || require('playwright');
-
-  playwright.selectors.register(selectorName, {
-    path: require.resolve('../eval'),
-  });
-}
-
-export function setupPuppeteer(
-  this: Puppeteer | void,
-  selectorName: string = 'role'
-) {
+export function setup(this: Puppeteer | void, selectorName: string = 'role') {
   const script = fs.readFileSync(require.resolve('../eval'), 'utf-8');
   const puppeteer = this || require('puppeteer');
 
@@ -33,3 +18,5 @@ export function setupPuppeteer(
     ) as any,
   });
 }
+
+export { default as suggestSelector } from './suggest-selector.backend';

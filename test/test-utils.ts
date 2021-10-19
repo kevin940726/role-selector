@@ -1,8 +1,8 @@
 import { Page } from 'playwright';
-import * as playwright from '@playwright/test';
-import { setupPlaywright } from '../';
+import { selectors, test as playwrightTest } from '@playwright/test';
+import { setup } from '../playwright';
 
-setupPlaywright.call(playwright);
+setup.call(selectors);
 
 if (global.beforeEach as any) {
   beforeEach(async () => {
@@ -10,7 +10,7 @@ if (global.beforeEach as any) {
   });
 }
 
-export const test = playwright.test.extend<{
+export const test = playwrightTest.extend<{
   html: typeof html;
 }>({
   async html({ page }, use) {

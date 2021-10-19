@@ -1,5 +1,5 @@
 import { html } from '../../test-utils';
-import { suggestSelector } from '../../../';
+import { suggestSelector } from '../../../puppeteer';
 
 test('role selector', async () => {
   await html`

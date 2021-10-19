@@ -1,12 +1,23 @@
 {
   "name": "role-selector",
   "version": "0.2.0",
-  "description": "Accessible role selector for Playwright, Puppeteer, jsdom, Cypress, and browsers",
+  "description": "Accessible role selector for browsers, jsdom, Playwright, Puppeteer, Cypress, and more",
   "main": "dist/index.js",
   "browser": "dist/browser.js",
   "repository": "https://github.com/kevin940726/role-selector.git",
   "author": "Kai Hao",
   "license": "MIT",
+  "keywords": [
+    "aria",
+    "accessibility",
+    "selector",
+    "query",
+    "jsdom",
+    "playwright",
+    "puppeteer",
+    "cypress",
+    "jest"
+  ],
   "scripts": {
     "postinstall": "npx playwright install-deps",
     "build": "tsc && rollup -c",

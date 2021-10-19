@@ -1,9 +1,9 @@
 import puppeteer from 'puppeteer';
 import { strict as assert } from 'assert';
-import { setupPuppeteer, suggestSelector } from '../../../';
+import { setup, suggestSelector } from '../../../puppeteer';
 
 (async () => {
-  setupPuppeteer();
+  setup();
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();

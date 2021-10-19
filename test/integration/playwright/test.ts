@@ -1,20 +1,18 @@
 import { chromium, ElementHandle } from 'playwright';
 import { strict as assert } from 'assert';
-import { setupPlaywright, suggestSelector } from '../../../';
+import { setup, suggestSelector } from '../../../playwright';
 
 (async () => {
-  setupPlaywright();
+  setup();
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  await page.evaluate(() => {
-    document.body.innerHTML = `
-      <button aria-pressed="true">Button 1</button>
-      <button disabled>Button 2</button>
-      <button aria-expanded="true">Button 3</button>
-    `;
-  });
+  await page.setContent(`
+    <button aria-pressed="true">Button 1</button>
+    <button disabled>Button 2</button>
+    <button aria-expanded="true">Button 3</button>
+  `);
 
   const button = (await page.$('role=button')) as ElementHandle<HTMLElement>;
   const namedButton = await page.$('role=button[name="Button 1"]');

@@ -1,4 +1,4 @@
-import { query, queryAll, suggestSelector } from '../../../browser';
+import { query, queryAll, suggestSelector } from '../../../';
 
 test('role selector', () => {
   document.body.innerHTML = `

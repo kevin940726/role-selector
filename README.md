@@ -25,7 +25,7 @@ console.log(await suggestSelector(userNameInput));
 // Logs: { type: 'role', selector: 'role=textbox[name="User Name"]' }
 ```
 
-_Only Playwright, Puppeteer, and jsdom are supported at the time._
+_Only browsers, Playwright, Puppeteer, and jsdom are supported at the time._
 
 - [`role-selector`](#role-selector)
   - [Installation](#installation)

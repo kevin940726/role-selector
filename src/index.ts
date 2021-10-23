@@ -28,9 +28,9 @@ export function get(root: Element, selector: string) {
 
 export function within(root: Element) {
   return {
-    query: query.bind(root),
-    queryAll: queryAll.bind(root),
-    get: get.bind(root),
-    getAll: getAll.bind(root),
+    query: query.bind(null, root),
+    queryAll: queryAll.bind(null, root),
+    get: get.bind(null, root),
+    getAll: getAll.bind(null, root),
   };
 }

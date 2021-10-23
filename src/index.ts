@@ -1,7 +1,7 @@
-import queries from './role-selector';
+import roleSelector from './role-selector';
 
-export const query = queries.query;
-export const queryAll = queries.queryAll;
+export const query = roleSelector.query;
+export const queryAll = roleSelector.queryAll;
 export { default as suggestSelector } from './suggest-selector';
 
 export function getAll(root: Element, selector: string) {
@@ -34,3 +34,5 @@ export function within(root: Element) {
     getAll: getAll.bind(null, root),
   };
 }
+
+export const screen = typeof document !== 'undefined' && within(document.body);

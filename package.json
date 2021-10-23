@@ -8,6 +8,7 @@
   "author": "Kai Hao",
   "license": "MIT",
   "keywords": [
+    "testing-library",
     "aria",
     "accessibility",
     "selector",

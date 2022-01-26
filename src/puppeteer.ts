@@ -1,22 +1,47 @@
 import fs from 'fs';
-import type { Puppeteer } from 'puppeteer';
+import { createRequire } from 'module';
+import type { ElementHandle, JSONObject } from 'puppeteer';
+import { suggestSelectorFunction } from './suggest-selector.backend';
+import type {
+  SuggestedSelector,
+  SuggestSelectorOptions,
+} from './suggest-selector.backend';
 
-export function setup(this: Puppeteer | void, selectorName: string = 'role') {
-  const script = fs.readFileSync(require.resolve('../eval'), 'utf-8');
-  const puppeteer = this || require('puppeteer');
+const require = createRequire(import.meta.url);
 
-  puppeteer.registerCustomQueryHandler(selectorName, {
-    queryOne: new Function(
-      'element',
-      'selector',
-      `return (${script}).query(element, selector);`
-    ) as any,
-    queryAll: new Function(
-      'element',
-      'selector',
-      `return (${script}).queryAll(element, selector);`
-    ) as any,
-  });
+const script = fs.readFileSync(require.resolve('../eval'), 'utf-8');
+
+const queryHandler = {
+  queryOne: new Function(
+    'element',
+    'selector',
+    `return (${script}).query(element, selector);`
+  ) as (element: Element | Document, selector: string) => Element | null,
+  queryAll: new Function(
+    'element',
+    'selector',
+    `return (${script}).queryAll(element, selector);`
+  ) as (element: Element | Document, selector: string) => Element[],
+};
+
+async function suggestSelector(
+  elementHandle: ElementHandle | Promise<ElementHandle | null> | null,
+  options?: SuggestSelectorOptions
+): Promise<SuggestedSelector> {
+  const handle = await elementHandle;
+
+  if (!handle) {
+    throw new Error("Element doesn't exist");
+  }
+
+  if (!options) {
+    return await handle.evaluate(suggestSelectorFunction);
+  }
+
+  return await handle.evaluate(
+    suggestSelectorFunction,
+    (options as unknown) as JSONObject
+  );
 }
 
-export { default as suggestSelector } from './suggest-selector.backend';
+export { queryHandler, suggestSelector };

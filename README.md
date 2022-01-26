@@ -2,6 +2,8 @@
 
 Accessible role selector for browsers, jsdom, Playwright, Puppeteer, Cypress, and more.
 
+
+
 ```js
 import { setup } from 'role-selector/playwright';
 
@@ -30,13 +32,14 @@ _Only browsers, Playwright, Puppeteer, and jsdom are supported at the time._
 - [`role-selector`](#role-selector)
   - [Installation](#installation)
   - [Setup](#setup)
+  - [Selector](#selector)
   - [API](#api)
       - [`query(root: Element | Document, selector: string): Element`](#queryroot-element--document-selector-string-element)
       - [`queryAll(root: Element | Document, selector: string): Element[]`](#queryallroot-element--document-selector-string-element)
       - [`suggestSelector(element: Element, options?: Options): SuggestedSelector`](#suggestselectorelement-element-options-options-suggestedselector)
     - [Puppeteer and Playwright endpoints](#puppeteer-and-playwright-endpoints)
-      - [(Playwright) `setup(selectorName: string = 'role'): void`](#playwright-setupselectorname-string--role-void)
-      - [(Puppeteer) `setup(selectorName: string = 'role'): void`](#puppeteer-setupselectorname-string--role-void)
+      - [(Playwright) `selectorScript: Object`](#playwright-selectorscript-object)
+      - [(Puppeteer) `queryHandler: Object`](#puppeteer-queryhandler-object)
       - [`suggestSelector(elementHandle: ElementHandle | Promise<ElementHandle> | Locator, options?: Options): Promise<SuggestedSelector>`](#suggestselectorelementhandle-elementhandle--promiseelementhandle--locator-options-options-promisesuggestedselector)
 
 ## Installation
@@ -48,6 +51,30 @@ npm install -D role-selector
 ## Setup
 
 See the examples in the [`test/integration`](https://github.com/kevin940726/role-selector/tree/main/test/integration) directory.
+
+## Selector
+
+The role selector syntax roughly follows the below format:
+
+```
+role=ROLE_NAME[STRING_ATTRIBUTE="STRING"][NUMBER_ATTRIBUTE=NUMBER][BOOLEAN_ATTRIBUTE]
+```
+
+While:
+
+- `ROLE_NAME` can be any of the [WAI_ARIA roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles).
+- `ATTRIBUTE` is one of `name`, `value`, `placeholder`, `selected`, `checked`, `disabled`, `level`, `expanded`, `pressed`, and `current`.
+- String attributes have to be wrapped with double quotes `"`.
+- Number attributes can be represented as number literal.
+- Boolean attributes can have value of `true` or `false`. Omitting the value and the equal sign is a shorthand of `=true`.
+
+Other than the role name, the order of the attributes doesn't matter. You can also add intermediate spaces in-between for readability.
+
+For instance, here's a selector which queries the element `<h2>Hello World</h2>`.
+
+```
+role=heading[name="Hello World"][level=2]
+```
 
 ## API
 
@@ -83,26 +110,26 @@ suggestSelector(document.getElementById('button'));
 
 ### Puppeteer and Playwright endpoints
 
-#### (Playwright) `setup(selectorName: string = 'role'): void`
+#### (Playwright) `selectorScript: Object`
 
-Register the role selector in Playwright. Once registered, the selector is available globally under `[selectorName]=` prefix. By default it will try to register to the `selectors` instance from the `playwright` import. If you're using `@playwright/test` or other setup, use that instance as `this` when calling this function.
+An object with the path of the selector script. You can register it using [`selectors.register`](https://playwright.dev/docs/api/class-selectors#selectors-register).
 
 ```js
 import { selectors } from '@playwright/test';
-import { setup } from 'role-selector/playwright';
+import { selectorScript } from 'role-selector/playwright';
 
-setup.call(selectors);
+selectors.register('role', selectorScript);
 ```
 
-#### (Puppeteer) `setup(selectorName: string = 'role'): void`
+#### (Puppeteer) `queryHandler: Object`
 
-Register the role selector in Puppeteer. Once registered, the selector is available globally under `[selectorName]/` prefix. By default it will try to register to the `puppeteer` import. If you're using other setup, use that instance as `this` when calling this function.
+The query handler object you can use to register the selector with [`puppeteer.registerCustomQueryHandler`](https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#puppeteerregistercustomqueryhandlername-queryhandler).
 
 ```js
-import puppeteer from 'puppeteer-core';
-import { setup } from 'role-selector/puppeteer';
+import puppeteer from 'puppeteer';
+import { queryHandler } from 'role-selector/puppeteer';
 
-setup.call(puppeteer);
+puppeteer.registerCustomQueryHandler('role', queryHandler);
 ```
 
 #### `suggestSelector(elementHandle: ElementHandle | Promise<ElementHandle> | Locator, options?: Options): Promise<SuggestedSelector>`

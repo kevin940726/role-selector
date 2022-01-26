@@ -1,9 +1,9 @@
-import { chromium, ElementHandle } from 'playwright';
+import { selectors, chromium, ElementHandle } from 'playwright';
 import { strict as assert } from 'assert';
-import { setup, suggestSelector } from '../../../playwright';
+import { selectorScript, suggestSelector } from '../../../playwright';
 
 (async () => {
-  setup();
+  selectors.register('role', selectorScript);
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();

@@ -23,6 +23,8 @@ test('query elements', async ({ page, html }) => {
 
       <h1>Heading 1</h1>
       <h2>Heading 2</h2>
+
+      <a href="#" aria-current="page">Link</a>
     </div>
   `;
 
@@ -70,6 +72,8 @@ test('query elements', async ({ page, html }) => {
   await expect(page.locator('role=button[disabled]')).toHaveText('Button 2');
 
   await expect(page.locator('role=button[expanded]')).toHaveText('Button 3');
+
+  await expect(page.locator('role=link[current="page"]')).toHaveText('Link');
 });
 
 test('query partial elements', async ({ page, html }) => {

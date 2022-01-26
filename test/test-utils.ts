@@ -1,8 +1,8 @@
 import { Page } from 'playwright';
 import { selectors, test as playwrightTest } from '@playwright/test';
-import { setup } from '../playwright';
+import { selectorScript } from '../playwright/';
 
-setup.call(selectors);
+selectors.register('role', selectorScript);
 
 if (global.beforeEach as any) {
   beforeEach(async () => {

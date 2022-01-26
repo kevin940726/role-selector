@@ -16,6 +16,32 @@ function iifeEvalOutputPlugin() {
 }
 
 export default [
+  // CommonJS (Node)
+  {
+    input: 'dist/index.js',
+    output: {
+      file: 'dist/index.cjs',
+      format: 'cjs',
+    },
+    plugins: [resolve(), commonjs()],
+  },
+  {
+    input: 'dist/playwright.js',
+    output: {
+      file: 'dist/playwright.cjs',
+      format: 'cjs',
+    },
+    plugins: [resolve(), commonjs()],
+  },
+  {
+    input: 'dist/puppeteer.js',
+    output: {
+      file: 'dist/puppeteer.cjs',
+      format: 'cjs',
+    },
+    plugins: [resolve(), commonjs()],
+  },
+  // UMD (Browsers)
   {
     input: 'dist/index.js',
     output: {
@@ -28,6 +54,7 @@ export default [
     },
     plugins: [resolve(), commonjs()],
   },
+  // IIFE eval (injected)
   {
     input: 'dist/role-selector.js',
     output: {

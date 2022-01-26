@@ -1,12 +1,8 @@
+import 'axe-core';
 import parse from './parse';
 import * as attributeGetters from './attributes';
 import { VNode } from './types';
 import { flattenVNodes, is, findVNode } from './utils';
-
-// Conditionally evaluate axe script
-if (!window.axe) {
-  require('axe-core');
-}
 
 function queryAll(root: Element | Document, selector: string) {
   const { role, attributes } = parse(selector);

@@ -1,3 +1,5 @@
 {
-  "main": "../dist/playwright.js"
+  "type": "commonjs",
+  "main": "../dist/playwright.cjs",
+  "types": "../dist/playwright.d.ts"
 }

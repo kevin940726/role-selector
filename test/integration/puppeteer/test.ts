@@ -1,9 +1,9 @@
 import puppeteer from 'puppeteer';
 import { strict as assert } from 'assert';
-import { setup, suggestSelector } from '../../../puppeteer';
+import { queryHandler, suggestSelector } from '../../../puppeteer';
 
 (async () => {
-  setup();
+  puppeteer.registerCustomQueryHandler('role', queryHandler);
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();

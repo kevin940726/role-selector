@@ -1,11 +1,31 @@
-import type { Selectors } from 'playwright';
+import { createRequire } from 'module';
+import type { ElementHandle, Locator } from 'playwright';
+import { suggestSelectorFunction } from './suggest-selector.backend';
+import type {
+  SuggestedSelector,
+  SuggestSelectorOptions,
+} from './suggest-selector.backend';
 
-export function setup(this: Selectors | void, selectorName: string = 'role') {
-  const selectors = this || require('playwright').selectors;
+const require = createRequire(import.meta.url);
 
-  selectors.register(selectorName, {
-    path: require.resolve('../eval'),
-  });
+const selectorScript = {
+  path: require.resolve('../eval'),
+};
+
+async function suggestSelector(
+  elementHandle: ElementHandle | Locator | Promise<ElementHandle | null> | null,
+  options?: SuggestSelectorOptions
+): Promise<SuggestedSelector> {
+  const handle = await elementHandle;
+
+  if (!handle) {
+    throw new Error("Element doesn't exist");
+  }
+
+  return await (handle as ElementHandle).evaluate(
+    suggestSelectorFunction,
+    options
+  );
 }
 
-export { default as suggestSelector } from './suggest-selector.backend';
+export { selectorScript, suggestSelector, SuggestedSelector };

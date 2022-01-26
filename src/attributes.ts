@@ -105,3 +105,38 @@ export function pressed(vNode: VNode, role: string) {
   const pressed = vNode.attr('aria-pressed');
   return pressed === 'true';
 }
+
+export function current(vNode: VNode) {
+  const current = vNode.attr('aria-current');
+
+  if (current === null) {
+    return false;
+  }
+
+  const ALLOWED_CURRENT_VALUES = [
+    'page',
+    'step',
+    'location',
+    'date',
+    'time',
+    'true',
+    'false',
+  ] as const;
+  type AllowedCurrentValues = typeof ALLOWED_CURRENT_VALUES[number];
+
+  function isAllowedCurrentValue(value: string): value is AllowedCurrentValues {
+    return ALLOWED_CURRENT_VALUES.includes(value as AllowedCurrentValues);
+  }
+
+  if (!isAllowedCurrentValue(current)) {
+    throw new Error(`Unknown value of "aria-current": "${current}"`);
+  }
+
+  if (current === 'true') {
+    return true;
+  } else if (current === 'false') {
+    return false;
+  }
+
+  return current;
+}

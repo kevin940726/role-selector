@@ -8,9 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        # Avoid node 16.9.0
-        # @see https://github.com/nodejs/node/issues/40030
-        node: [12, 14, 16.8]
+        node: [12, 14, 16]
 
     steps:
       - uses: actions/checkout@v2

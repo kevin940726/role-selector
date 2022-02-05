@@ -1,6 +1,6 @@
 {
   "name": "role-selector",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Accessible role selector for browsers, jsdom, Playwright, Puppeteer, Cypress, and more",
   "type": "module",
   "module": "dist/index.js",

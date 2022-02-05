@@ -1,5 +1,5 @@
 import { createRequire } from 'module';
-import type { ElementHandle, Locator } from 'playwright';
+import type { ElementHandle, Locator } from 'playwright-core';
 import { suggestSelectorFunction } from './suggest-selector.backend';
 import type {
   SuggestedSelector,

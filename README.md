@@ -5,10 +5,11 @@ Accessible role selector for browsers, jsdom, Playwright, Puppeteer, Cypress, an
 
 
 ```js
-import { setup } from 'role-selector/playwright';
+import { selectors } from '@playwright/test';
+import { selectorScript } from 'role-selector/playwright';
 
 // Register the selector in Playwright
-setup();
+selectors.register('role', selectorScript, { contentScript: true });
 
 // Given DOM of:
 //   <label for="username">User Name</label>
@@ -16,7 +17,7 @@ setup();
 //   <input type="submit" value="Submit" />
 
 // Query the text input by its role and accessible name
-const userNameInput = await page.$('role=textbox[name="User Name"]');
+const userNameInput = page.locator('role=textbox[name="User Name"]');
 await userNameInput.type('My name');
 
 // Works on any method that accepts a selector
@@ -118,7 +119,7 @@ An object with the path of the selector script. You can register it using [`sele
 import { selectors } from '@playwright/test';
 import { selectorScript } from 'role-selector/playwright';
 
-selectors.register('role', selectorScript);
+selectors.register('role', selectorScript, { contentScript: true });
 ```
 
 #### (Puppeteer) `queryHandler: Object`

@@ -25,10 +25,12 @@ function queryAll(root: Element | Document, selector: string) {
         const value = getAttribute(vNode, role);
 
         if (Array.isArray(value)) {
-          return value.some((value) => is(value, attribute.value));
+          return value.some((value) =>
+            is(value, attribute.value, attribute.caseSensitive)
+          );
         }
 
-        return is(value, attribute.value);
+        return is(value, attribute.value, attribute.caseSensitive);
       }),
     ].every(Boolean);
   }

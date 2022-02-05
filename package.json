@@ -45,6 +45,7 @@
     "build": "tsc && rollup -c",
     "pretest": "npx playwright install-deps",
     "test": "npm-run-all -c test:**",
+    "test:unit": "jest -c jest.config.mjs",
     "test:specs": "playwright test -c test/playwright.config.ts",
     "test:jest-jsdom": "jest -c test/integration/jest-jsdom/jest.jsdom.config.js",
     "test:jest-playwright": "jest -c test/integration/jest-playwright/jest.playwright.config.js",

@@ -2,11 +2,20 @@ import { VNode } from './types';
 
 function is(
   value: string | number | boolean,
-  attrValue: string | number | boolean | RegExp
+  attrValue: string | number | boolean | RegExp,
+  caseSensitive?: boolean
 ): boolean {
   if (attrValue instanceof RegExp) {
     const valueAsString = value.toString();
     return !!valueAsString.match(attrValue);
+  }
+
+  if (
+    caseSensitive === false &&
+    typeof attrValue === 'string' &&
+    typeof value === 'string'
+  ) {
+    return Object.is(value.toLowerCase(), attrValue.toLowerCase());
   }
 
   return Object.is(value, attrValue);

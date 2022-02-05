@@ -20,7 +20,7 @@
 interface ParsedAttribute {
   name: string;
   value: string | number | boolean | RegExp;
-  caseSensitive: boolean;
+  caseSensitive?: boolean;
 }
 
 interface ParsedSelector {
@@ -58,7 +58,8 @@ function parseSelector(selector: string): ParsedSelector {
   function readIdentifier() {
     let result = '';
     skipSpaces();
-    while (!EOL && /[-$0-9A-Z_\*]/i.test(next())) result += eat1();
+    while (!EOL && /[a-z]/.test(next())) result += eat1();
+    if (!result) syntaxError('parsing identifier');
     return result;
   }
 
@@ -66,8 +67,12 @@ function parseSelector(selector: string): ParsedSelector {
     let result = eat1();
     if (result !== quote) syntaxError('parsing quoted string');
     while (!EOL && next() !== quote) {
-      if (next() === '\\') eat1();
-      result += eat1();
+      const cur = eat1();
+      if (cur === '\\' && next() === quote) {
+        result += eat1();
+      } else {
+        result += cur;
+      }
     }
     if (next() !== quote) syntaxError('parsing quoted string');
     result += eat1();
@@ -79,11 +84,10 @@ function parseSelector(selector: string): ParsedSelector {
     let pattern = '';
     let flags = '';
     while (!EOL && next() !== '/') {
-      if (next() === '\\') eat1();
+      // if (next() === '\\') eat1();
       pattern += eat1();
     }
-    if (next() !== '/') syntaxError('parsing regex string');
-    eat1();
+    if (eat1() !== '/') syntaxError('parsing regex string');
     while (!EOL && /[dgimsuy]/.test(next())) {
       flags += eat1();
     }
@@ -110,15 +114,16 @@ function parseSelector(selector: string): ParsedSelector {
     // check property is true: [focused]
     if (next() === ']') {
       eat1();
-      return { name, value: true, caseSensitive: false };
+      return { name, value: true };
     }
 
     readOperator();
 
     let value = undefined;
-    let caseSensitive = true;
+    let caseSensitive = undefined;
     skipSpaces();
     if (next() === `'` || next() === `"`) {
+      caseSensitive = true;
       value = readQuotedString(next()).slice(1, -1);
       skipSpaces();
       if (next() === 'i' || next() === 'I') {
@@ -156,7 +161,12 @@ function parseSelector(selector: string): ParsedSelector {
       throw new Error(
         `Error while parsing selector \`${selector}\` - cannot use attribute ${name} with unsupported type ${typeof value} - ${value}`
       );
-    return { name, value, caseSensitive };
+
+    const attribute: ParsedAttribute = { name, value };
+    if (typeof caseSensitive !== 'undefined') {
+      attribute.caseSensitive = caseSensitive;
+    }
+    return attribute;
   }
 
   const result: ParsedSelector = {

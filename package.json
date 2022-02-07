@@ -19,6 +19,11 @@
       "import": "./dist/playwright.js",
       "types": "./dist/playwright.d.ts"
     },
+    "./playwright-test": {
+      "require": "./dist/playwright.cjs",
+      "import": "./dist/playwright.js",
+      "types": "./dist/playwright-test.d.ts"
+    },
     "./puppeteer": {
       "require": "./dist/puppeteer.cjs",
       "import": "./dist/puppeteer.js",
@@ -42,7 +47,8 @@
     "jest"
   ],
   "scripts": {
-    "build": "tsc && rollup -c",
+    "build": "tsc && npm run build-playwright-test-definition && rollup -c",
+    "build-playwright-test-definition": "sed \"s#'playwright'#'@playwright/test'#\" dist/playwright.d.ts > dist/playwright-test.d.ts",
     "pretest": "npx playwright install-deps",
     "test": "npm-run-all -c test:**",
     "test:unit": "jest -c jest.config.mjs",

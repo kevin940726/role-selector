@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { test } from '../test-utils';
-import { suggestSelector } from '../../playwright';
+import { suggestSelector } from '../../playwright-test';
 
 test.describe('suggestSelector', () => {
   test('suggest selectors', async ({ page, html }) => {

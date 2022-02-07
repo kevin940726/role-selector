@@ -1,6 +1,6 @@
-import { Page } from 'playwright';
+import type { Page } from 'playwright';
 import { selectors, test as playwrightTest } from '@playwright/test';
-import { selectorScript } from '../playwright/';
+import { selectorScript } from '../playwright-test/';
 
 selectors.register('role', selectorScript, { contentScript: true });
 

@@ -6,7 +6,8 @@ Accessible role selector for browsers, jsdom, Playwright, Puppeteer, Cypress, an
 
 ```js
 import { selectors } from '@playwright/test';
-import { selectorScript } from 'role-selector/playwright';
+import { selectorScript } from 'role-selector/playwright-test';
+// import from 'role-selector/playwright' if you're using the 'playwright' package.
 
 // Register the selector in Playwright
 selectors.register('role', selectorScript, { contentScript: true });
@@ -117,7 +118,7 @@ An object with the path of the selector script. You can register it using [`sele
 
 ```js
 import { selectors } from '@playwright/test';
-import { selectorScript } from 'role-selector/playwright';
+import { selectorScript } from 'role-selector/playwright-test';
 
 selectors.register('role', selectorScript, { contentScript: true });
 ```
@@ -147,7 +148,7 @@ interface SuggestedSelector {
 You can log it when first writing your test, then replace it with the suggested selector. If the suggested selector has `type` of `role`, remember to prefix your selector with the registered `selectorName` (defaults to `role=` in Playwright and `role/` in Puppeteer).
 
 ```js
-import { suggestSelector } from 'role-selector/playwright';
+import { suggestSelector } from 'role-selector/playwright-test';
 
 await suggestSelector(page.$('#button'));
 ```

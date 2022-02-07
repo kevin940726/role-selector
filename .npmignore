@@ -2,3 +2,4 @@ test/
 tsconfig.json
 .github/
 rollup.config.js
+__tests__/

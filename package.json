@@ -55,11 +55,15 @@
     "prepare": "npm run build && npm run test"
   },
   "peerDependencies": {
-    "playwright-core": "*",
+    "@playwright/test": "*",
+    "playwright": "*",
     "puppeteer": "*"
   },
   "peerDependenciesMeta": {
-    "playwright-core": {
+    "@playwright/test": {
+      "optional": true
+    },
+    "playwright": {
       "optional": true
     },
     "puppeteer": {

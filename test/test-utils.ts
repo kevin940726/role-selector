@@ -2,7 +2,7 @@ import { Page } from 'playwright';
 import { selectors, test as playwrightTest } from '@playwright/test';
 import { selectorScript } from '../playwright/';
 
-selectors.register('role', selectorScript);
+selectors.register('role', selectorScript, { contentScript: true });
 
 if (global.beforeEach as any) {
   beforeEach(async () => {

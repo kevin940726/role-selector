@@ -3,7 +3,7 @@ import { strict as assert } from 'assert';
 import { selectorScript, suggestSelector } from '../../../playwright';
 
 (async () => {
-  selectors.register('role', selectorScript);
+  selectors.register('role', selectorScript, { contentScript: true });
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();

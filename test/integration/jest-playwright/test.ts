@@ -15,11 +15,11 @@ test('role selector', async () => {
   const button = await page.$('button');
   await expect(suggestSelector(button)).resolves.toEqual({
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
   await expect(suggestSelector(page.$('button'))).resolves.toEqual({
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
   // It will throw a warning for Playwright < v1.14.1
   // @see https://github.com/microsoft/playwright/pull/8735
@@ -27,7 +27,7 @@ test('role selector', async () => {
     suggestSelector(page.locator('button').first())
   ).resolves.toEqual({
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
   await sleep(100);
 });

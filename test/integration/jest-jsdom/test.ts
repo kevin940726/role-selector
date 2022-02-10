@@ -16,6 +16,6 @@ test('role selector', () => {
   const button1 = document.querySelector('button');
   expect(suggestSelector(button1)).toEqual({
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
 });

@@ -1,4 +1,10 @@
+import { configure } from '@testing-library/dom';
 import roleSelector from './role-selector';
+
+configure({
+  // Not available in JSDOM
+  computedStyleSupportsPseudoElements: false,
+});
 
 export const query = roleSelector.query;
 export const queryAll = roleSelector.queryAll;

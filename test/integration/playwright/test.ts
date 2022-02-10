@@ -31,7 +31,7 @@ import { selectorScript, suggestSelector } from '../../../playwright';
   const suggestedSelector = await suggestSelector(button);
   assert.deepStrictEqual(suggestedSelector, {
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
 
   await browser.close();

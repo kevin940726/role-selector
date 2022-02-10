@@ -58,7 +58,7 @@ function parseSelector(selector: string): ParsedSelector {
   function readIdentifier() {
     let result = '';
     skipSpaces();
-    while (!EOL && /[a-z]/.test(next())) result += eat1();
+    while (!EOL && /[a-zA-Z]/.test(next())) result += eat1();
     if (!result) syntaxError('parsing identifier');
     return result;
   }

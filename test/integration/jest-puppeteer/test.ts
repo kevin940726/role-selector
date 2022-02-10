@@ -15,10 +15,10 @@ test('role selector', async () => {
   const button = await page.$('button');
   await expect(suggestSelector(button)).resolves.toEqual({
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
   await expect(suggestSelector(page.$('button'))).resolves.toEqual({
     type: 'role',
-    selector: 'button[name="Button 1"]',
+    selector: 'button[name=/button 1/i]',
   });
 });

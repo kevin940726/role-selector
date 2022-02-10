@@ -52,13 +52,15 @@ test('query elements', async ({ page, html }) => {
     page.locator('role=textbox[placeholder="placeholder"]')
   ).toHaveAttribute('placeholder', 'placeholder');
 
-  await expect(page.locator('role=textbox[value="value"]')).toHaveValue(
+  await expect(page.locator('role=textbox[valuetext="value"]')).toHaveValue(
     'value'
   );
-  const selectHandleLocator = page.locator('role=combobox[value="Option 2"]');
+  const selectHandleLocator = page.locator(
+    'role=combobox[valuetext="Option 2"]'
+  );
   await expect(selectHandleLocator).toHaveValue('option-2');
   await selectHandleLocator.selectOption('option-1');
-  await expect(page.locator('role=combobox[value="Option 1"]')).toHaveValue(
+  await expect(page.locator('role=combobox[valuetext="Option 1"]')).toHaveValue(
     'option-1'
   );
 

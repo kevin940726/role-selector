@@ -141,11 +141,17 @@ describe('Role', () => {
     );
   });
 
-  test('Error roles', () => {
-    expect(() => parseSelector('BUTTON')).toThrowErrorMatchingInlineSnapshot(
-      `"Error while parsing selector \`BUTTON\` - unexpected symbol \\"B\\" at position 0 during parsing identifier"`
+  test('Invalid roles', () => {
+    expect(parseSelector('BUTTON')).toEqual(
+      expect.objectContaining({ role: 'BUTTON' })
     );
 
+    expect(parseSelector('somerole')).toEqual(
+      expect.objectContaining({ role: 'somerole' })
+    );
+  });
+
+  test('Error roles', () => {
     expect(() => parseSelector('123')).toThrowErrorMatchingInlineSnapshot(
       `"Error while parsing selector \`123\` - unexpected symbol \\"1\\" at position 0 during parsing identifier"`
     );
@@ -153,7 +159,7 @@ describe('Role', () => {
     expect(() =>
       parseSelector('Hello World')
     ).toThrowErrorMatchingInlineSnapshot(
-      `"Error while parsing selector \`Hello World\` - unexpected symbol \\"H\\" at position 0 during parsing identifier"`
+      `"Error while parsing selector \`Hello World\` - unexpected symbol \\"W\\" at position 6"`
     );
   });
 });
@@ -257,10 +263,16 @@ describe('RegExp', () => {
     });
 
     expect(
-      parseSelector('button[name=/Hello\\s+ [wW]orld.*\\n/m]').attributes
+      parseSelector('button[name=/He\\\\llo\\s+ [wW]orld.*\\n/m]').attributes
     ).toContainEqual({
       name: 'name',
-      value: /Hello\s+ [wW]orld.*\n/m,
+      value: /He\\llo\s+ [wW]orld.*\n/m,
+    });
+
+    const regexp = /^Hello\s* \\[wW]or.ld\n$/im;
+    expect(parseSelector(`button[name=${regexp}]`).attributes).toContainEqual({
+      name: 'name',
+      value: regexp,
     });
   });
 

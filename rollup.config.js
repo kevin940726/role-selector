@@ -1,5 +1,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
 function iifeEvalOutputPlugin() {
   return {
@@ -15,6 +17,22 @@ function iifeEvalOutputPlugin() {
   };
 }
 
+const basePlugins = [resolve(), commonjs()];
+const evalPlugins = [
+  replace({
+    preventAssignment: true,
+    values: {
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    },
+  }),
+  terser({
+    compress: {
+      negate_iife: false,
+      expression: true,
+    },
+  }),
+];
+
 export default [
   // CommonJS (Node)
   {
@@ -23,7 +41,7 @@ export default [
       file: 'dist/index.cjs',
       format: 'cjs',
     },
-    plugins: [resolve(), commonjs()],
+    plugins: basePlugins,
   },
   {
     input: 'dist/playwright.js',
@@ -31,7 +49,7 @@ export default [
       file: 'dist/playwright.cjs',
       format: 'cjs',
     },
-    plugins: [resolve(), commonjs()],
+    plugins: basePlugins,
   },
   {
     input: 'dist/puppeteer.js',
@@ -39,7 +57,7 @@ export default [
       file: 'dist/puppeteer.cjs',
       format: 'cjs',
     },
-    plugins: [resolve(), commonjs()],
+    plugins: basePlugins,
   },
   // UMD (Browsers)
   {
@@ -52,7 +70,7 @@ export default [
         crypto: 'crypto',
       },
     },
-    plugins: [resolve(), commonjs()],
+    plugins: basePlugins,
   },
   // IIFE eval (injected)
   {
@@ -65,7 +83,7 @@ export default [
       },
       plugins: [iifeEvalOutputPlugin()],
     },
-    plugins: [resolve(), commonjs()],
+    plugins: [...basePlugins, ...evalPlugins],
   },
   {
     input: 'dist/suggest-selector.js',
@@ -77,6 +95,6 @@ export default [
       },
       plugins: [iifeEvalOutputPlugin()],
     },
-    plugins: [resolve(), commonjs()],
+    plugins: [...basePlugins, ...evalPlugins],
   },
 ];

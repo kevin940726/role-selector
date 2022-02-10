@@ -1,18 +1,26 @@
-import * as attributeGetters from './attributes';
+import { getSuggestedQuery } from '@testing-library/dom';
+// import * as attributeGetters from './attributes';
 import roleSelector from './role-selector';
-import { flattenVNodes } from './utils';
 
-const ATTRIBUTES_ORDER: (keyof typeof attributeGetters)[] = [
-  'name',
-  'value',
-  'level',
-  'disabled',
-  'placeholder',
-  'selected',
-  'checked',
-  'expanded',
-  'pressed',
-];
+// const ATTRIBUTES_ORDER: (keyof typeof attributeGetters)[] = [
+//   'name',
+//   'value',
+//   'level',
+//   'disabled',
+//   'placeholder',
+//   'selected',
+//   'checked',
+//   'expanded',
+//   'pressed',
+// ];
+
+function stringify(json: any, space?: number | string): string {
+  return JSON.stringify(
+    json,
+    (_key, value) => (value instanceof RegExp ? value.toString() : value),
+    space
+  );
+}
 
 function suggestSelector(
   element: HTMLElement | null,
@@ -44,37 +52,10 @@ function suggestSelector(
     }
   }
 
-  // Make sure axe is injected
-  if (!window.axe) {
-    throw new Error('Axe is not injected');
-  }
+  const suggestedQuery = getSuggestedQuery(element, 'get', 'Role');
 
-  const rootVNode = window.axe.setup(element.ownerDocument);
-  const vNodes = flattenVNodes(rootVNode);
-  const vNode = vNodes.find((node) => node.actualNode === element)!;
-
-  const { role: getRole, ...ariaAttributeGetters } = attributeGetters;
-
-  const role = getRole(vNode);
-
-  if (role) {
+  if (suggestedQuery) {
     // Priority 2: Select by roles and aria attributes
-    const attributeEntries = Object.entries(ariaAttributeGetters).map(
-      ([attributeKey, getAttribute]) => {
-        try {
-          return [attributeKey, getAttribute(vNode, role)];
-        } catch (err) {
-          return [attributeKey, null];
-        }
-      }
-    );
-    const attributes: {
-      [Key in keyof typeof ariaAttributeGetters]: ReturnType<
-        typeof ariaAttributeGetters[Key]
-      >;
-    } = Object.fromEntries(attributeEntries.filter(([_key, value]) => value));
-    window.axe.teardown();
-
     const checkSelector = (selector: string) => {
       const selectedElements = roleSelector.queryAll(
         element.ownerDocument.documentElement,
@@ -85,35 +66,25 @@ function suggestSelector(
       return selectedElements[0] === element;
     };
 
-    let selector = role;
-    for (const attributeKey of ATTRIBUTES_ORDER) {
-      const attribute = attributes[attributeKey as keyof typeof attributes];
-      const serializedAttribute =
-        typeof attribute === 'string' ? JSON.stringify(attribute) : attribute;
+    const [role, attributes] = suggestedQuery.queryArgs;
 
-      if (attribute) {
-        const selectorCandidate =
-          selector +
-          (serializedAttribute === true
-            ? `[${attributeKey}]`
-            : `[${attributeKey}=${serializedAttribute}]`);
-        if (checkSelector(selectorCandidate)) {
-          return { type: 'role', selector: selectorCandidate };
-        }
-        selector = selectorCandidate;
-      }
-    }
+    const attributesSelector = Object.entries(attributes || {})
+      .map(
+        ([key, value]) =>
+          `[${key}=${
+            value instanceof RegExp ? value.toString() : JSON.stringify(value)
+          }]`
+      )
+      .join('');
 
-    // Priority 3: Select by roles only
-    {
-      if (checkSelector(selector)) {
-        return { type: 'role', selector };
-      }
+    let selector = `${role}${attributesSelector}`;
+    if (checkSelector(selector)) {
+      return { type: 'role', selector };
     }
 
     throw new Error(`Unable to find accessible selector for this element. Consider using text selector or CSS selector instead.
 Parsed attributes:
-${JSON.stringify({ role, ...attributes }, null, 2)}`);
+${stringify({ role, ...attributes }, 2)}`);
   }
 
   // Priority 4: Select by ids

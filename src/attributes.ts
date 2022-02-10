@@ -1,142 +1,112 @@
-import { VNode } from './types';
+import { queryAllByRole, getNodeText } from '@testing-library/dom';
+import { parentElementOrShadowHost } from './utils';
 
-export function role(vNode: VNode) {
-  return window.axe.commons.aria.getRole(vNode) || '';
+function getPlaceholder(element: HTMLElement): string | null {
+  return (
+    element.getAttribute('placeholder') ||
+    element.getAttribute('aria-placeholder')
+  );
 }
 
-export function name(vNode: VNode) {
-  return window.axe.commons.text.accessibleTextVirtual(vNode);
-}
+function getValueText(
+  element: HTMLElement,
+  role: string
+): string | string[] | null {
+  // aria-valuetext: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-valuetext
+  if (
+    ['meter', 'scrollbar', 'separator', 'slider', 'spinbutton'].includes(role)
+  ) {
+    if (element.hasAttribute('aria-valuetext')) {
+      return element.getAttribute('aria-valuetext');
+    } else if (element.hasAttribute('aria-valuenow')) {
+      return element.getAttribute('aria-valuenow');
+    }
+  }
 
-export function value(vNode: VNode) {
-  if (window.axe.commons.forms.isNativeSelect(vNode)) {
-    const select = vNode.actualNode as HTMLSelectElement;
-    const isMultiple = select.multiple;
-    const options = Array.from(select.options);
-    const selectedOptions = options.filter((option) => option.selected);
-    const optionValues = selectedOptions.map((option) =>
-      window.axe.commons.text.accessibleText(option)
+  // aria-selected: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-selected
+  if (['grid', 'listbox', 'tablist', 'tree', 'combobox'].includes(role)) {
+    const isMultiSelectable =
+      element.getAttribute('aria-multiselectable') === 'true' ||
+      (element.tagName === 'SELECT' && element.hasAttribute('multiple'));
+
+    const selectedOptions = ['gridcell', 'option', 'row', 'tab'].flatMap(
+      (role) =>
+        queryAllByRole(element, role, {
+          selected: true,
+        })
     );
-    return isMultiple ? optionValues : optionValues[0];
+
+    if (!selectedOptions.length) {
+      return null;
+    }
+
+    if (selectedOptions.length === 1 || !isMultiSelectable) {
+      return getNodeText(selectedOptions[0]);
+    }
+
+    return selectedOptions.map((option) => getNodeText(option));
   }
 
-  return window.axe.commons.text.formControlValue(vNode);
+  // input or textarea
+  if (['INPUT', 'TEXTAREA'].includes(element.tagName)) {
+    return (element as HTMLInputElement | HTMLTextAreaElement).value;
+  }
+
+  // contenteditable or textbox
+  if (element.isContentEditable || role === 'textbox') {
+    return getNodeText(element);
+  }
+
+  return null;
 }
 
-export function placeholder(vNode: VNode) {
-  return window.axe.commons.text.nativeTextMethods.placeholderText(vNode);
-}
+// Copied and changed from https://github.com/microsoft/playwright/blob/b0cd5b1420741ce79c8ed74cab6dd20101011c7c/packages/playwright-core/src/server/injected/injectedScript.ts#L1227-L1255.
+function getDisabled(element: HTMLElement): boolean {
+  function hasDisabledFieldSet(element: HTMLElement | null): boolean {
+    if (!element) {
+      return false;
+    }
 
-export function selected(vNode: VNode, role: string) {
-  if (vNode.props.nodeName === 'option') {
-    return (vNode.actualNode as HTMLOptionElement).selected;
+    if (element.tagName === 'FIELDSET' && element.hasAttribute('disabled')) {
+      return true;
+    }
+
+    // fieldset does not work across shadow boundaries
+    return hasDisabledFieldSet(element.parentElement);
   }
 
-  const allowedAttributes =
-    window.axe.commons.aria.lookupTable.role[role]?.attributes.allowed;
-  if (!allowedAttributes.includes('aria-selected')) {
-    throw new Error(`"aria-selected" is not supported on role "${role}"`);
-  }
-  const selected = vNode.attr('aria-selected');
-  return selected === 'true';
-}
+  function hasAriaDisabled(element: Element | undefined): boolean {
+    if (!element) {
+      return false;
+    }
 
-export function checked(vNode: VNode, role: string) {
-  if (vNode.props.nodeName === 'input' && vNode.props.type === 'checkbox') {
-    const checkboxElement = vNode.actualNode as HTMLInputElement;
-    return checkboxElement.indeterminate ? 'mixed' : checkboxElement.checked;
-  }
+    const attribute = (
+      element.getAttribute('aria-disabled') || ''
+    ).toLowerCase();
 
-  const allowedAttributes =
-    window.axe.commons.aria.lookupTable.role[role]?.attributes.allowed;
-  if (!allowedAttributes.includes('aria-checked')) {
-    throw new Error(`"aria-checked" is not supported on role "${role}"`);
-  }
-  const checked = vNode.attr('aria-checked');
-  return checked === 'mixed' ? 'mixed' : checked === 'true';
-}
+    if (attribute === 'true') {
+      return true;
+    } else if (attribute === 'false') {
+      return false;
+    }
 
-export function disabled(vNode: VNode) {
-  return window.axe.commons.forms.isDisabled(vNode);
-}
-
-export function level(vNode: VNode, role: string) {
-  if (role !== 'heading') {
-    return 0;
+    return hasAriaDisabled(parentElementOrShadowHost(element));
   }
 
-  const [, levelString] = vNode.props.nodeName.match(/h(\d)/) || [];
-  let level = parseInt(levelString, 10);
-  if (!Number.isNaN(level)) {
-    return level;
+  if (['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) {
+    if (element.hasAttribute('disabled')) {
+      return true;
+    }
+    if (hasDisabledFieldSet(element)) {
+      return true;
+    }
   }
 
-  const ariaLevelString = vNode.attr('aria-level') || '';
-  const ariaLevel = parseInt(ariaLevelString, 10);
-
-  /*
-   * default aria-level for a role=heading is 2 if it is
-   * not set or set to an incorrect value.
-   * @see https://www.w3.org/TR/wai-aria-1.1/#heading
-   */
-  if (Number.isNaN(ariaLevel) || ariaLevel < 1) {
-    return 2;
-  }
-
-  return ariaLevel;
-}
-
-export function expanded(vNode: VNode, role: string) {
-  const allowedAttributes =
-    window.axe.commons.aria.lookupTable.role[role]?.attributes.allowed;
-  if (!allowedAttributes.includes('aria-expanded')) {
-    throw new Error(`"aria-expanded" is not supported on role "${role}"`);
-  }
-  const expanded = vNode.attr('aria-expanded');
-  return expanded === 'true';
-}
-
-export function pressed(vNode: VNode, role: string) {
-  const allowedAttributes =
-    window.axe.commons.aria.lookupTable.role[role]?.attributes.allowed;
-  if (!allowedAttributes.includes('aria-pressed')) {
-    throw new Error(`"aria-pressed" is not supported on role "${role}"`);
-  }
-  const pressed = vNode.attr('aria-pressed');
-  return pressed === 'true';
-}
-
-export function current(vNode: VNode) {
-  const current = vNode.attr('aria-current');
-
-  if (current === null) {
-    return false;
-  }
-
-  const ALLOWED_CURRENT_VALUES = [
-    'page',
-    'step',
-    'location',
-    'date',
-    'time',
-    'true',
-    'false',
-  ] as const;
-  type AllowedCurrentValues = typeof ALLOWED_CURRENT_VALUES[number];
-
-  function isAllowedCurrentValue(value: string): value is AllowedCurrentValues {
-    return ALLOWED_CURRENT_VALUES.includes(value as AllowedCurrentValues);
-  }
-
-  if (!isAllowedCurrentValue(current)) {
-    throw new Error(`Unknown value of "aria-current": "${current}"`);
-  }
-
-  if (current === 'true') {
+  if (hasAriaDisabled(element)) {
     return true;
-  } else if (current === 'false') {
-    return false;
   }
 
-  return current;
+  return false;
 }
+
+export { getPlaceholder, getValueText, getDisabled };
